@@ -1,4 +1,4 @@
-# Installing Python3 Packages
+# Installing the Python3 Packages
 
 You will need to install some python3 packages to run/develop this program. The
 full list is install_requires in setup.py.
@@ -10,4 +10,7 @@ Alternatively, you can find a dependency's page on pypi.org, download its
 tar.gz, unzip, and then run
 cd package_name
 python3 setup.py build
-sudo python3 setup.py install 
+sudo python3 setup.py install
+
+Also, you might need to install the python3-dev package if Cython fails over
+"Python.h". Windows users need Cygwin.
