@@ -1,0 +1,5 @@
+
+4-26: complete basic raycaster features (src/rcast.pyx)
+4-27: agree on game to develop
+5-1: finish additional features
+5-2: complete game package

@@ -3,6 +3,8 @@ try:
 except ImportError:
     from distutils.core import setup
 
+from Cython.Build import cythonize
+
 config = {
     "description" : "my project",
     "author" : "my name",
@@ -13,6 +15,7 @@ config = {
     "install_requires" : ['pytest', 'pyglet', 'Cython'],
     "packages" : ["NAME"],
     "scripts" : [],
+    "ext_modules" : cythonize("src/*.pyx"),
     "name" : "project name"
 }
 
