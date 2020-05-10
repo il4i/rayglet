@@ -1,0 +1,65 @@
+
+class Raycaster:
+
+# CONSTANTS #
+
+# The circumference of the player's POV. This sets the maximum of the range
+# refresh_vision will cast rays.
+const int POV_CIRC
+
+# Constants (enum) for the map. We use char to mimimize memory consumption.
+const char WALL = 1
+const char FLOOR = 0
+
+# See the ray_cast method descritpion.
+const float array SIN_TABLE
+
+# We will probably need a few misc. pyglet constants for set_pixels to convert
+# vision's ints into pyglet pixels. These will be colors values.
+
+
+# VARIABLES #
+
+# the map
+2D int array map
+
+# pixel array (screen) that is drawn by pyglet
+2D int array vision
+
+# player position and POV variables
+unsigned int player_x
+unsigned int player_y
+float pov_angle  # radians
+
+
+# METHODS #
+
+# Returns the distance between POV and the nearest wall. It uses the sin
+# function to accomplish this, but we can make a table of pre-calculated sin
+# values to avoid constantly making the same computations (see the following).
+# That would be a huge speed improvement!
+def raycast(angle)
+
+# sin utilities
+float array SIN_TABLE
+# lambda macro would be helpful for referencing the table
+lambda sin_calc
+
+# Calls raycast for all points within POV_CIRC and updates vision
+def refresh_vision()
+
+# Movement methods that update player_x, player_y, and pov_angle
+def move_forward(dist)   # dist will most likely be hard-coded to make movement
+def move_backward(dist)  # speed constant.
+def turn_left(angle)     # And angle too.
+def turn_right(angle)
+
+# Exports vision into arr, a 2D Python3 array of pyglet objects that represent
+# pixels. Each int must be converted. See render.
+def set_pixels(arr)
+
+# Constructor
+def __cinit__(player_x, player_y, pov_angle=0)
+
+# Setter
+def import_map(map)
