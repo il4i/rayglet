@@ -5,6 +5,8 @@ except ImportError:
 
 from Cython.Build import cythonize
 
+directives = {'language_level': 3},
+
 config = {
     "description" : "my project",
     "author" : "my name",
@@ -15,7 +17,8 @@ config = {
     "install_requires" : ['pytest', 'pyglet', 'Cython'],
     "packages" : ["NAME"],
     "scripts" : [],
-    "ext_modules" : cythonize("src/*.pyx"),
+    "ext_modules" : cythonize("src/*.pyx",
+                              compiler_directives={'language_level' : 3}),
     "name" : "project name"
 }
 
