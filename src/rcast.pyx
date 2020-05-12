@@ -18,7 +18,7 @@ cdef int WALL = 1
 
 cdef int FLOOR_PIXEL = 0
 cdef int WALL_PIXEL  = 1
-cdef int FLOOR_PIXEL = 2
+cdef int SKY_PIXEL = 2
 
 
 cdef class Raycaster:
