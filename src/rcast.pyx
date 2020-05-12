@@ -4,7 +4,7 @@ import math
 
 
 # The circumference of the player's point of view (radians) .
-cdef int POV_CIRC = 0
+cdef float POV_CIRC = (2 * math.pi / 3)
 
 # length/width/height of walls, floors, etc.
 cdef int BLOCK_LWH = 32
@@ -49,7 +49,11 @@ cdef class Raycaster:
     def wall_collision(self):
         """ Returns whether or not the player has hit a wall. """
 
-        pass
+        cdef int x, y
+        x = math.floor(self.player_x)
+        y = math.floor(self.player_y)
+        
+        return self.grid[y][x] == WALL
 
     def move_forward(self, dist):
         """ Each dist unit is 1/BLOCK_LWH of a block. Returns whether or not
@@ -101,3 +105,21 @@ cdef class Raycaster:
         self.pov_angle = orig_angle
 
         return ray_len
+
+    
+    def refresh_vision(self):
+        cdef int i, dist
+        cdef float angle, height_ratio
+        
+        for i in range(0, self.pov_length):
+            angle = self.pov_angle - POV_CIRC / 2
+            angle += i / self.pov_length * POV_CIRC
+            dist = self.ray_cast(angle)
+
+            height_ratio = dist / (MAX_SIGHT * BLOCK_LWH)
+            # TODO: display wall in vision
+
+    def export_vision(self):
+        """ Returns a 2D list of pixel values that must be interpretted and
+        displayed in Python 3 with Pyglet. """
+        pass
