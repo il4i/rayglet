@@ -4,7 +4,7 @@ import math
 
 
 # The circumference of the player's point of view (radians) .
-cdef float POV_CIRC = (2 * math.pi / 3)
+cdef float POV_CIRC = (2 / 3) * math.pi
 
 # length/width/height of walls, floors, etc.
 cdef int BLOCK_LWH = 32
@@ -15,6 +15,10 @@ cdef int MAX_SIGHT = 8
 # enums
 cdef int EMPTY = 0
 cdef int WALL = 1
+
+cdef int FLOOR_PIXEL = 0
+cdef int WALL_PIXEL  = 1
+cdef int FLOOR_PIXEL = 2
 
 
 cdef class Raycaster:
@@ -52,9 +56,13 @@ cdef class Raycaster:
         cdef int x, y
         x = math.floor(self.player_x)
         y = math.floor(self.player_y)
-        
-        return self.grid[y][x] == WALL
 
+        try:
+            self.grid[y][x] == WALL
+        except IndexError:
+            return True  # The player is looking or standing off of the grid
+
+    
     def move_forward(self, dist):
         """ Each dist unit is 1/BLOCK_LWH of a block. Returns whether or not
         the movement successfully avoided a wall. """
@@ -118,6 +126,11 @@ cdef class Raycaster:
 
             height_ratio = dist / (MAX_SIGHT * BLOCK_LWH)
             # TODO: display wall in vision
+
+            cdef int floor_pixels, sky_pixels, wall_pixels
+            # determine amounts
+            # set vision the *_PIXEL values
+            
 
     def export_vision(self):
         """ Returns a 2D list of pixel values that must be interpretted and
