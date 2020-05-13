@@ -12,10 +12,11 @@ window = pyglet.window.Window(screen_width, screen_height)
 #initializing the raycaster
 caster=rcast.Raycaster(screen_height, screen_width, 1.5, 1.5)
 grid = \
-        [[1, 1, 1, 1],
-         [1, 0, 0, 1],
-         [1, 0, 0, 1],
-         [1, 1, 1, 1]]
+        [[1, 1, 1, 1, 1],
+         [1, 0, 0, 0, 1],
+         [1, 0, 0, 0, 1],
+         [1, 0, 0, 0, 1],
+         [1, 1, 1, 1, 1]]
 caster.load_grid(grid, 4)
 
 #Redraws window for the on_draw event
@@ -42,9 +43,9 @@ def on_key_press(symbol, modifiers):
 
 #Column Draw
 def drawColumn(start, sky, wall, ground):
-        pyglet.graphics.draw(4, pyglet.gl.GL_QUADS, ('v2f', [start, 0, start+1, 0, start+1, ground, start, ground]))
-        pyglet.graphics.draw(4, pyglet.gl.GL_QUADS, ('v2f', [start, ground, start+1, ground, start+1, wall, start, wall]))
-        pyglet.graphics.draw(4, pyglet.gl.GL_QUADS, ('v2f', [start, wall, start+1, wall, start+1, sky, start, start]))
+        pyglet.graphics.draw(4, pyglet.gl.GL_QUADS, ('v2f', [start, 0, start+1, 0, start+1, ground, start, ground]), ('c48', [0, 51, 0, 0]*4))
+        pyglet.graphics.draw(4, pyglet.gl.GL_QUADS, ('v2f', [start, ground, start+1, ground, start+1, wall, start, wall]), ('c48', [64, 64, 64, 0]*4))
+        pyglet.graphics.draw(4, pyglet.gl.GL_QUADS, ('v2f', [start, wall, start+1, wall, start+1, sky, start, start])('c48', [102, 178, 255, 0]*4))
 
 #Activating the Pyglet
 pyglet.app.run()
