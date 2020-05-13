@@ -48,10 +48,9 @@ cdef class Raycaster:
     cdef array.array grid
     cdef int grid_cols  # needed for reading 2-dimensionally
 
-    vision = list()
-    
+    vision = None
 
-    def __cinit__(self, pov_height, pov_length, player_x, player_y,
+    def __cinit__(self, pov_length, pov_height, player_x, player_y,
                   pov_angle=0):
         self.pov_height = pov_height
         self.pov_length = pov_length
