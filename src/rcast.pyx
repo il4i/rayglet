@@ -34,6 +34,15 @@ cdef class PixelColumn:
         return "floor_pixels={} sky_pixels={} wall_pixels={}".format(
             self.floor, self.sky, self.wall)
 
+    def get_floor(self):
+        return self.floor
+
+    def get_wall(self):
+        return self.wall
+
+    def get_sky(self):
+        return self.sky
+
 
 cdef class Raycaster:
 
