@@ -29,8 +29,8 @@ def getView():
     # the same number as the screen's width in pixels.
     # - Ian
     output = caster.export_vision()
-    for col in output:
-        drawColumn(col.sky, col.wall, col.floor)
+    for dx in range(len(output)):
+        drawColumn(dx, output[dx].sky, output[dx].wall, output[dx].floor)
     #print("needs to be implemented")
 
 #Draws first screen
