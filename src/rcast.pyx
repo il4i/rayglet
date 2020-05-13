@@ -16,12 +16,23 @@ cdef int MAX_SIGHT = 8
 cdef int EMPTY = 0
 cdef int WALL = 1
 
-cdef int FLOOR_PIXEL = 0
-cdef int WALL_PIXEL  = 1
-cdef int SKY_PIXEL = 8
-
 def two_dim_index(r, c, cols):
     return r * cols + c
+
+
+cdef class PixelColumn:
+    cdef int floor, wall, sky
+    
+    def __cinit__(self, floor, wall, sky):
+        """ Counts of how many of each pixel should be printed in this column.
+        Displayed with floor on the bottom, then wall, then sky. """
+        self.floor = floor
+        self.wall = wall
+        self.sky = sky
+
+    def __str__(self):
+        return "floor_pixels={} sky_pixels={} wall_pixels={}".format(
+            self.floor, self.sky, self.wall)
 
 
 cdef class Raycaster:
@@ -34,9 +45,11 @@ cdef class Raycaster:
 
     # When pov_angle = 0, the player is facing to the right.
 
-    cdef array.array vision
     cdef array.array grid
     cdef int grid_cols  # needed for reading 2-dimensionally
+
+    vision = list()
+    
 
     def __cinit__(self, pov_height, pov_length, player_x, player_y,
                   pov_angle=0):
@@ -46,12 +59,7 @@ cdef class Raycaster:
         self.player_y = player_y
         self.pov_angle = pov_angle
 
-        vis_list = [[9, ] * pov_length, ] * pov_height
-        self.vision = array.array('i')
-
-        for sub_list in vis_list:
-            for pixel in sub_list:
-                self.vision.append(pixel)
+        self.vision = [None, ] * pov_length
 
         
     def load_grid(self, grid, grid_cols):
@@ -156,39 +164,10 @@ cdef class Raycaster:
             sky_pixels = floor_pixels
             wall_pixels = self.pov_height - floor_pixels - sky_pixels
 
-            print("{} floor_pixels={} sky_pixels={} wall_pixels={}"
-                  .format(i, floor_pixels, sky_pixels, wall_pixels))
+            self.vision[i] = PixelColumn(floor_pixels, wall_pixels, sky_pixels)
             
-            #wall_pixels = math.floor(dist_ratio * self.pov_height)
-            #floor_pixels = math.floor((self.pov_height - wall_pixels) / 2)
-            #sky_pixels = self.pov_height - wall_pixels - floor_pixels
-            
-            for j in range(0, sky_pixels):
-                self.vision[two_dim_index(j, i, self.pov_height)] = SKY_PIXEL
-                
-            offset = j + 1
-            
-            for j in range(offset, offset + wall_pixels):
-                self.vision[two_dim_index(i, j, self.pov_height)] = WALL_PIXEL
-                
-            offset = j + 1
-            
-            for j in range(offset, offset + floor_pixels):
-                #print("sky pixel attempt")
-                try:
-                    self.vision[two_dim_index(i, j, self.pov_height)] = FLOOR_PIXEL
-                except IndexError:
-                    break
-                    
 
     def export_vision(self):
         """ Returns a 2D list of pixel values that must be interpretted and
         displayed in Python 3 with Pyglet. """
-        pixels = []
-        for i in range(0, self.pov_height):
-            pixels.append(list())
-            
-            for j in range(0, self.pov_length):
-                pixels[i].append(self.vision[two_dim_index(j, i,
-                                                           self.pov_height)])
-        return pixels
+        return self.vision
