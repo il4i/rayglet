@@ -3,10 +3,10 @@ import rcast
 from pyglet.window import key 
 
 #Setting Window
-display = pyglet.canvas.Display()
-screen = display.get_default_screen()
-screen_width = screen.width
-screen_height = screen.height
+#display = pyglet.canvas.Display()
+#screen = display.get_default_screen()
+screen_width = 720
+screen_height = 480
 window = pyglet.window.Window(screen_width, screen_height)
 
 #initializing the raycaster
