@@ -20,6 +20,9 @@ cdef int FLOOR_PIXEL = 0
 cdef int WALL_PIXEL  = 1
 cdef int SKY_PIXEL = 2
 
+def two_dim_index(r, c, cols):
+    return r * cols + c
+
 
 cdef class Raycaster:
 
@@ -33,6 +36,7 @@ cdef class Raycaster:
 
     cdef array.array vision
     cdef array.array grid
+    cdef int grid_cols  # needed for reading 2-dimensionally
 
     def __cinit__(self, pov_height, pov_length, player_x, player_y,
                   pov_angle=0):
@@ -43,11 +47,18 @@ cdef class Raycaster:
         self.pov_angle = pov_angle
 
         vis_list = [[0, ] * pov_length, ] * pov_height
-        self.vision = array.array(*vis_list)
+        self.vision = array.array('i')
+
+        for pixel in vis_list:
+            self.vision.append(pixel)
 
         
-    def load_grid(self, grid):
-        self.grid = array.array(*grid)
+    def load_grid(self, grid, grid_cols):
+        self.grid = array.array('i')
+        self.grid_cols = grid_cols
+        
+        for block in grid:
+            self.grid.append(block)
 
 
     def wall_collision(self):
@@ -58,7 +69,7 @@ cdef class Raycaster:
         y = math.floor(self.player_y)
 
         try:
-            self.grid[y][x] == WALL
+            return self.grid[two_dim_index(y, x, self.grid_cols)] == WALL
         except IndexError:
             return True  # The player is looking or standing off of the grid
 
@@ -117,6 +128,7 @@ cdef class Raycaster:
     
     def refresh_vision(self):
         cdef int i, j, dist
+        cdef int floor_pixels, sky_pixels, wall_pixels
         cdef float angle, dist_ratio
         
         for i in range(0, self.pov_length):
@@ -127,23 +139,28 @@ cdef class Raycaster:
 
             dist_ratio = dist / (MAX_SIGHT * BLOCK_LWH)
 
-            cdef int floor_pixels, sky_pixels, wall_pixels
-
-            floor_pixels = math.floor(dist_ratio * pov_height)
-            sky_pixels = math.floor(dist_ratio * pov_height)
-            wall_pixels = pov_height - floor_pixels - sky_pixels
+            floor_pixels = math.floor(dist_ratio * self.pov_height)
+            sky_pixels = math.floor(dist_ratio * self.pov_height)
+            wall_pixels = self.pov_height - floor_pixels - sky_pixels
 
             for j in range(0, floor_pixels):
-                self.vision[j][i] = FLOOR_PIXEL
+                self.vision[two_dim_index(i, j, self.pov_height)] = FLOOR_PIXEL
 
             for j in range(0, wall_pixels):
-                self.vision[j][i] = WALL_PIXEL
+                self.vision[two_dim_index(i, j, self.pov_height)] = WALL_PIXEL
 
             for j in range(0, sky_pixels):
-                self.vision[j][i] = SKY_PIXEL
+                self.vision[two_dim_index(i, j, self.pov_height)] = WALL_PIXEL
         
 
     def export_vision(self):
         """ Returns a 2D list of pixel values that must be interpretted and
         displayed in Python 3 with Pyglet. """
-        return self.vision
+        pixels = []
+        for i in range(0, self.pov_height):
+            pixels.append(list())
+            
+            for j in range(0, self.pov_width):
+                pixels[i].append(self.vision[two_dim_index(i, j,
+                                                           self.pov_height)])
+        return pixels
