@@ -17,7 +17,7 @@ grid = \
          [1, 0, 0, 0, 1],
          [1, 0, 0, 0, 1],
          [1, 1, 1, 1, 1]]
-caster.load_grid(grid, 5)
+caster.load_grid(grid)
 
 #Gets the values of sky wall and ground for current position
 def getView():
