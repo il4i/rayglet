@@ -116,23 +116,34 @@ cdef class Raycaster:
 
     
     def refresh_vision(self):
-        cdef int i, dist
-        cdef float angle, height_ratio
+        cdef int i, j, dist
+        cdef float angle, dist_ratio
         
         for i in range(0, self.pov_length):
+            # pov_angle is the center, so first set angle to the real start
             angle = self.pov_angle - POV_CIRC / 2
             angle += i / self.pov_length * POV_CIRC
             dist = self.ray_cast(angle)
 
-            height_ratio = dist / (MAX_SIGHT * BLOCK_LWH)
-            # TODO: display wall in vision
+            dist_ratio = dist / (MAX_SIGHT * BLOCK_LWH)
 
             cdef int floor_pixels, sky_pixels, wall_pixels
-            # determine amounts
-            # set vision the *_PIXEL values
-            
+
+            floor_pixels = math.floor(dist_ratio * pov_height)
+            sky_pixels = math.floor(dist_ratio * pov_height)
+            wall_pixels = pov_height - floor_pixels - sky_pixels
+
+            for j in range(0, floor_pixels):
+                self.vision[j][i] = FLOOR_PIXEL
+
+            for j in range(0, wall_pixels):
+                self.vision[j][i] = WALL_PIXEL
+
+            for j in range(0, sky_pixels):
+                self.vision[j][i] = SKY_PIXEL
+        
 
     def export_vision(self):
         """ Returns a 2D list of pixel values that must be interpretted and
         displayed in Python 3 with Pyglet. """
-        pass
+        return self.vision
