@@ -22,6 +22,12 @@ caster.load_grid(grid)
 #Gets the values of sky wall and ground for current position
 def getView():
     #Feeds the output from export_vision into the function drawColumn one column at a time
+    # - Daniel
+    
+    # WRITE ME PUCHENG!!!
+    # Loop through all of the PixelColumns in export_vision(). There should be
+    # the same number as the screen's width in pixels.
+    # - Ian
     print("needs to be implemented")
 
 #Draws first screen
