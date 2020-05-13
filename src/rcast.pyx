@@ -4,10 +4,10 @@ import math
 
 
 # The circumference of the player's point of view (radians) .
-cdef float POV_CIRC = (2 / 3) * math.pi
+cdef float POV_CIRC = (1 / 4) * math.pi  #(2 / 3) * math.pi
 
 # length/width/height of walls, floors, etc.
-cdef int BLOCK_LWH = 32
+cdef int BLOCK_LWH = 24
 
 # maximum length of vision in blocks
 cdef int MAX_SIGHT = 8
@@ -61,9 +61,9 @@ cdef class Raycaster:
         self.vision = [None, ] * pov_length
 
         
-    def load_grid(self, grid, grid_cols):
+    def load_grid(self, grid):
         self.grid = array.array('i')
-        self.grid_cols = grid_cols
+        self.grid_cols = len(grid[0])
         
         for sub_list in grid:
             for block in sub_list:
