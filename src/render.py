@@ -21,9 +21,10 @@ caster.load_grid(grid)
 
 #Gets the values of sky wall and ground for current position
 def getView():
+    #Feeds the output from export_vision into the function drawColumn one column at a time
     print("needs to be implemented")
 
-#Redraws window for the on_draw event
+#Draws first screen
 @window.event
 def on_draw():
     window.clear
@@ -52,9 +53,12 @@ def on_key_press(symbol, modifiers):
 
 #Column Draw
 def drawColumn(start, sky, wall, ground):
+        #Drawing the ground
         pyglet.graphics.draw(4, pyglet.gl.GL_QUADS, ('v2f', [start, 0, start+1, 0, start+1, ground, start, ground]), ('c48', [0, 51, 0, 0]*4))
+        #Drawing the walls
         pyglet.graphics.draw(4, pyglet.gl.GL_QUADS, ('v2f', [start, ground, start+1, ground, start+1, wall, start, wall]), ('c48', [64, 64, 64, 0]*4))
+        #Drawing the sky
         pyglet.graphics.draw(4, pyglet.gl.GL_QUADS, ('v2f', [start, wall, start+1, wall, start+1, sky, start, start])('c48', [102, 178, 255, 0]*4))
 
-#Activating the Pyglet
+#ACTIVATE THE PYGLET
 pyglet.app.run()
