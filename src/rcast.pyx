@@ -18,7 +18,7 @@ cdef int WALL = 1
 
 cdef int FLOOR_PIXEL = 0
 cdef int WALL_PIXEL  = 1
-cdef int SKY_PIXEL = 2
+cdef int SKY_PIXEL = 8
 
 def two_dim_index(r, c, cols):
     return r * cols + c
@@ -46,7 +46,7 @@ cdef class Raycaster:
         self.player_y = player_y
         self.pov_angle = pov_angle
 
-        vis_list = [[0, ] * pov_length, ] * pov_height
+        vis_list = [[9, ] * pov_length, ] * pov_height
         self.vision = array.array('i')
 
         for sub_list in vis_list:
@@ -79,21 +79,31 @@ cdef class Raycaster:
     def move_forward(self, dist):
         """ Each dist unit is 1/BLOCK_LWH of a block. Returns whether or not
         the movement successfully avoided a wall. """
+        cdef float undo_x, undo_y
+        undo_x = self.player_x
+        undo_y = self.player_y
+        
         self.player_x += (dist / BLOCK_LWH) * math.cos(self.pov_angle)
         self.player_y += (dist / BLOCK_LWH) * math.sin(self.pov_angle)
 
         if self.wall_collision():
-            self.move_backward(dist)
+            self.player_x = undo_x
+            self.player_y = undo_y
             return False
 
         return True
 
     def move_backward(self, dist):
+        cdef float undo_x, undo_y
+        undo_x = self.player_x
+        undo_y = self.player_y
+        
         self.player_x -= (dist / BLOCK_LWH) * math.cos(self.pov_angle)
         self.player_y -= (dist / BLOCK_LWH) * math.sin(self.pov_angle)
 
         if self.wall_collision():
-            self.move_forward(dist)
+            self.player_x = undo_x
+            self.player_y = undo_y
             return False
 
         return True
@@ -130,7 +140,7 @@ cdef class Raycaster:
 
     
     def refresh_vision(self):
-        cdef int i, j, dist
+        cdef int i, j, dist, offset
         cdef int floor_pixels, sky_pixels, wall_pixels
         cdef float angle, dist_ratio
         
@@ -142,19 +152,34 @@ cdef class Raycaster:
 
             dist_ratio = dist / (MAX_SIGHT * BLOCK_LWH)
 
-            floor_pixels = math.floor(dist_ratio * self.pov_height)
-            sky_pixels = math.floor(dist_ratio * self.pov_height)
+            floor_pixels = math.floor(dist_ratio * self.pov_height / 2)
+            sky_pixels = floor_pixels
             wall_pixels = self.pov_height - floor_pixels - sky_pixels
 
-            for j in range(0, floor_pixels):
-                self.vision[two_dim_index(i, j, self.pov_height)] = FLOOR_PIXEL
-
-            for j in range(0, wall_pixels):
-                self.vision[two_dim_index(i, j, self.pov_height)] = WALL_PIXEL
-
+            print("{} floor_pixels={} sky_pixels={} wall_pixels={}"
+                  .format(i, floor_pixels, sky_pixels, wall_pixels))
+            
+            #wall_pixels = math.floor(dist_ratio * self.pov_height)
+            #floor_pixels = math.floor((self.pov_height - wall_pixels) / 2)
+            #sky_pixels = self.pov_height - wall_pixels - floor_pixels
+            
             for j in range(0, sky_pixels):
+                self.vision[two_dim_index(j, i, self.pov_height)] = SKY_PIXEL
+                
+            offset = j + 1
+            
+            for j in range(offset, offset + wall_pixels):
                 self.vision[two_dim_index(i, j, self.pov_height)] = WALL_PIXEL
-        
+                
+            offset = j + 1
+            
+            for j in range(offset, offset + floor_pixels):
+                #print("sky pixel attempt")
+                try:
+                    self.vision[two_dim_index(i, j, self.pov_height)] = FLOOR_PIXEL
+                except IndexError:
+                    break
+                    
 
     def export_vision(self):
         """ Returns a 2D list of pixel values that must be interpretted and
@@ -164,6 +189,6 @@ cdef class Raycaster:
             pixels.append(list())
             
             for j in range(0, self.pov_length):
-                pixels[i].append(self.vision[two_dim_index(i, j,
+                pixels[i].append(self.vision[two_dim_index(j, i,
                                                            self.pov_height)])
         return pixels
