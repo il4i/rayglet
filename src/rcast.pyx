@@ -49,16 +49,18 @@ cdef class Raycaster:
         vis_list = [[0, ] * pov_length, ] * pov_height
         self.vision = array.array('i')
 
-        for pixel in vis_list:
-            self.vision.append(pixel)
+        for sub_list in vis_list:
+            for pixel in sub_list:
+                self.vision.append(pixel)
 
         
     def load_grid(self, grid, grid_cols):
         self.grid = array.array('i')
         self.grid_cols = grid_cols
         
-        for block in grid:
-            self.grid.append(block)
+        for sub_list in grid:
+            for block in sub_list:
+                self.grid.append(block)
 
 
     def wall_collision(self):
@@ -117,6 +119,7 @@ cdef class Raycaster:
         
         for ray_len in range(0, BLOCK_LWH * MAX_SIGHT):
             if self.move_forward(1) == False:
+                ray_len += 1
                 break
 
         self.player_x = orig_x
@@ -160,7 +163,7 @@ cdef class Raycaster:
         for i in range(0, self.pov_height):
             pixels.append(list())
             
-            for j in range(0, self.pov_width):
+            for j in range(0, self.pov_length):
                 pixels[i].append(self.vision[two_dim_index(i, j,
                                                            self.pov_height)])
         return pixels
