@@ -1,11 +1,22 @@
 import pyglet 
-from pyglet.window import key
+import rcast
+from pyglet.window import key 
 
 #Setting Window
-window = pyglet.window.Window(720, 480)
+display = pyglet.canvas.Display()
+screen = display.get_default_screen()
+screen_width = screen.width
+screen_height = screen.height
+window = pyglet.window.Window(screen_width, screen_height)
 
-#getting wall sky and floor heights
-
+#initializing the raycaster
+caster=rcast.Raycaster(screen_height, screen_width, 1.5, 1.5)
+grid = \
+        [[1, 1, 1, 1],
+         [1, 0, 0, 1],
+         [1, 0, 0, 1],
+         [1, 1, 1, 1]]
+caster.load_grid(grid, 4)
 
 #Redraws window for the on_draw event
 @window.event
@@ -28,6 +39,12 @@ def on_key_press(symbol, modifiers):
         elif symbol == key.W:
             print('W was pressed')
             #move forward
+
+#Column Draw
+def drawColumn(start, sky, wall, ground):
+        pyglet.graphics.draw(4, pyglet.gl.GL_QUADS, ('v2f', [start, 0, start+1, 0, start+1, ground, start, ground]))
+        pyglet.graphics.draw(4, pyglet.gl.GL_QUADS, ('v2f', [start, ground, start+1, ground, start+1, wall, start, wall]))
+        pyglet.graphics.draw(4, pyglet.gl.GL_QUADS, ('v2f', [start, wall, start+1, wall, start+1, sky, start, start]))
 
 #Activating the Pyglet
 pyglet.app.run()
