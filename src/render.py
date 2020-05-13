@@ -46,11 +46,11 @@ def on_key_press(symbol, modifiers):
         setView()
         #turn right
     elif symbol == key.S:
-        caster.move_backward(rcast.BLOCK_LWH / 4)
+        caster.move_backward(8)
         setView()
         #move back
     elif symbol == key.W:
-        caster.move_forward(rcast.BLOCK_LWH / 4)
+        caster.move_forward(8)
         setView()
         #move forward
 
