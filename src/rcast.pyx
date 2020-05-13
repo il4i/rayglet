@@ -48,7 +48,7 @@ cdef class Raycaster:
     cdef array.array grid
     cdef int grid_cols  # needed for reading 2-dimensionally
 
-    vision = None
+    cdef object vision
 
     def __cinit__(self, pov_length, pov_height, player_x, player_y,
                   pov_angle=0):
@@ -117,10 +117,10 @@ cdef class Raycaster:
 
     def turn_left(self, angle):
         """ The turn_* methods take angle in degrees. """
-        self.pov_angle += angle * (math.pi / 180)
+        self.pov_angle -= angle * (math.pi / 180)
 
     def turn_right(self, angle):
-        self.pov_angle -= angle * (math.pi / 180)
+        self.pov_angle += angle * (math.pi / 180)
     
     
     def ray_cast(self, angle):
