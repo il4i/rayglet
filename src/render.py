@@ -17,28 +17,37 @@ grid = \
          [1, 0, 0, 0, 1],
          [1, 0, 0, 0, 1],
          [1, 1, 1, 1, 1]]
-caster.load_grid(grid, 4)
+caster.load_grid(grid, 5)
+
+#Gets the values of sky wall and ground for current position
+def getView():
+    print("needs to be implemented")
 
 #Redraws window for the on_draw event
 @window.event
 def on_draw():
     window.clear
-
+    getView()
 
 #Redraws window on key press
 @window.event
 def on_key_press(symbol, modifiers):
+        window.clear
         if symbol == key.A:
-            print('A was pressed')
+            caster.turn_left(1)
+            getView()
             #turn left
         elif symbol == key.D:
-            print('D was pressed')
+            caster.turn_right(1)
+            getView()
             #turn right
         elif symbol == key.S:
-            print('S was pressed')
+            caster.move_backward(1)
+            getView()
             #move back
         elif symbol == key.W:
-            print('W was pressed')
+            caster.move_forward(1)
+            getView()
             #move forward
 
 #Column Draw
