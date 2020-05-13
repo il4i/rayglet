@@ -16,9 +16,23 @@ cdef int MAX_SIGHT = 8
 cdef int EMPTY = 0
 cdef int WALL = 1
 
-cdef int FLOOR_PIXEL = 0
-cdef int WALL_PIXEL  = 1
-cdef int SKY_PIXEL = 2
+def two_dim_index(r, c, cols):
+    return r * cols + c
+
+
+cdef class PixelColumn:
+    cdef int floor, wall, sky
+    
+    def __cinit__(self, floor, wall, sky):
+        """ Counts of how many of each pixel should be printed in this column.
+        Displayed with floor on the bottom, then wall, then sky. """
+        self.floor = floor
+        self.wall = wall
+        self.sky = sky
+
+    def __str__(self):
+        return "floor_pixels={} sky_pixels={} wall_pixels={}".format(
+            self.floor, self.sky, self.wall)
 
 
 cdef class Raycaster:
@@ -31,8 +45,11 @@ cdef class Raycaster:
 
     # When pov_angle = 0, the player is facing to the right.
 
-    cdef array.array vision
     cdef array.array grid
+    cdef int grid_cols  # needed for reading 2-dimensionally
+
+    vision = list()
+    
 
     def __cinit__(self, pov_height, pov_length, player_x, player_y,
                   pov_angle=0):
@@ -42,12 +59,16 @@ cdef class Raycaster:
         self.player_y = player_y
         self.pov_angle = pov_angle
 
-        vis_list = [[0, ] * pov_length, ] * pov_height
-        self.vision = array.array(*vis_list)
+        self.vision = [None, ] * pov_length
 
         
-    def load_grid(self, grid):
-        self.grid = array.array(*grid)
+    def load_grid(self, grid, grid_cols):
+        self.grid = array.array('i')
+        self.grid_cols = grid_cols
+        
+        for sub_list in grid:
+            for block in sub_list:
+                self.grid.append(block)
 
 
     def wall_collision(self):
@@ -58,7 +79,7 @@ cdef class Raycaster:
         y = math.floor(self.player_y)
 
         try:
-            self.grid[y][x] == WALL
+            return self.grid[two_dim_index(y, x, self.grid_cols)] == WALL
         except IndexError:
             return True  # The player is looking or standing off of the grid
 
@@ -66,21 +87,31 @@ cdef class Raycaster:
     def move_forward(self, dist):
         """ Each dist unit is 1/BLOCK_LWH of a block. Returns whether or not
         the movement successfully avoided a wall. """
+        cdef float undo_x, undo_y
+        undo_x = self.player_x
+        undo_y = self.player_y
+        
         self.player_x += (dist / BLOCK_LWH) * math.cos(self.pov_angle)
         self.player_y += (dist / BLOCK_LWH) * math.sin(self.pov_angle)
 
         if self.wall_collision():
-            self.move_backward(dist)
+            self.player_x = undo_x
+            self.player_y = undo_y
             return False
 
         return True
 
     def move_backward(self, dist):
+        cdef float undo_x, undo_y
+        undo_x = self.player_x
+        undo_y = self.player_y
+        
         self.player_x -= (dist / BLOCK_LWH) * math.cos(self.pov_angle)
         self.player_y -= (dist / BLOCK_LWH) * math.sin(self.pov_angle)
 
         if self.wall_collision():
-            self.move_forward(dist)
+            self.player_x = undo_x
+            self.player_y = undo_y
             return False
 
         return True
@@ -106,6 +137,7 @@ cdef class Raycaster:
         
         for ray_len in range(0, BLOCK_LWH * MAX_SIGHT):
             if self.move_forward(1) == False:
+                ray_len += 1
                 break
 
         self.player_x = orig_x
@@ -116,23 +148,26 @@ cdef class Raycaster:
 
     
     def refresh_vision(self):
-        cdef int i, dist
-        cdef float angle, height_ratio
+        cdef int i, j, dist, offset
+        cdef int floor_pixels, sky_pixels, wall_pixels
+        cdef float angle, dist_ratio
         
         for i in range(0, self.pov_length):
+            # pov_angle is the center, so first set angle to the real start
             angle = self.pov_angle - POV_CIRC / 2
             angle += i / self.pov_length * POV_CIRC
             dist = self.ray_cast(angle)
 
-            height_ratio = dist / (MAX_SIGHT * BLOCK_LWH)
-            # TODO: display wall in vision
+            dist_ratio = dist / (MAX_SIGHT * BLOCK_LWH)
 
-            cdef int floor_pixels, sky_pixels, wall_pixels
-            # determine amounts
-            # set vision the *_PIXEL values
+            floor_pixels = math.floor(dist_ratio * self.pov_height / 2)
+            sky_pixels = floor_pixels
+            wall_pixels = self.pov_height - floor_pixels - sky_pixels
+
+            self.vision[i] = PixelColumn(floor_pixels, wall_pixels, sky_pixels)
             
 
     def export_vision(self):
         """ Returns a 2D list of pixel values that must be interpretted and
         displayed in Python 3 with Pyglet. """
-        pass
+        return self.vision
