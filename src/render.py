@@ -10,7 +10,7 @@ screen_height = 480
 window = pyglet.window.Window(screen_width, screen_height)
 
 #initializing the raycaster
-caster=rcast.Raycaster(screen_height, screen_width, 1.5, 1.5)
+caster=rcast.Raycaster(screen_width, screen_width, 1.5, 1.5)
 grid = \
         [[1, 1, 1, 1, 1],
          [1, 0, 0, 0, 1],
@@ -21,23 +21,16 @@ caster.load_grid(grid)
 
 #Gets the values of sky wall and ground for current position
 def getView():
-    #Feeds the output from export_vision into the function drawColumn one column at a time
-    # - Daniel
-    
-    # WRITE ME PUCHENG!!!
-    # Loop through all of the PixelColumns in export_vision(). There should be
-    # the same number as the screen's width in pixels.
-    # - Ian
     output = caster.export_vision()
     for dx in range(len(output)):
+        print("drawing {}".format(dx))
         drawColumn(dx, output[dx].get_sky(), output[dx].get_wall(),
                    output[dx].get_floor())
-    #print("needs to be implemented")
 
 #Draws first screen
 @window.event
 def on_draw():
-    window.clear
+    window.clear()
     getView()
 
 #Redraws window on key press
@@ -64,11 +57,12 @@ def on_key_press(symbol, modifiers):
 #Column Draw
 def drawColumn(start, sky, wall, ground):
         #Drawing the ground
-        pyglet.graphics.draw(4, pyglet.gl.GL_QUADS, ('v2f', [start, 0, start+1, 0, start+1, ground, start, ground]), ('c48', [0, 51, 0, 0]*4))
+        pyglet.graphics.draw(4, pyglet.gl.GL_QUADS, ('v2f', [start, 0, start+1, 0, start, ground, start+1, ground]), ('c4B', [0, 51, 0, 0]*4))
         #Drawing the walls
-        pyglet.graphics.draw(4, pyglet.gl.GL_QUADS, ('v2f', [start, ground, start+1, ground, start+1, wall, start, wall]), ('c48', [64, 64, 64, 0]*4))
+        pyglet.graphics.draw(4, pyglet.gl.GL_QUADS, ('v2f', [start, ground, start+1, ground, start, wall, start+1, wall]), ('c4B', [64, 64, 64, 0]*4))
         #Drawing the sky
-        pyglet.graphics.draw(4, pyglet.gl.GL_QUADS, ('v2f', [start, wall, start+1, wall, start+1, sky, start, start])('c48', [102, 178, 255, 0]*4))
+        wall += ground
+        pyglet.graphics.draw(4, pyglet.gl.GL_QUADS, ('v2f', [start, wall, start+1, wall, start, sky, start+1, start]), ('c4B', [102, 178, 255, 0]*4))
 
 #ACTIVATE THE PYGLET
 pyglet.app.run()
