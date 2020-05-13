@@ -146,7 +146,9 @@ cdef class Raycaster:
         return ray_len
 
     
-    def refresh_vision(self):
+    def export_vision(self):
+        """ Returns a 2D list of pixel values that must be interpretted and
+        displayed in Python 3 with Pyglet. """
         cdef int i, j, dist, offset
         cdef int floor_pixels, sky_pixels, wall_pixels
         cdef float angle, dist_ratio
@@ -164,9 +166,5 @@ cdef class Raycaster:
             wall_pixels = self.pov_height - floor_pixels - sky_pixels
 
             self.vision[i] = PixelColumn(floor_pixels, wall_pixels, sky_pixels)
-            
 
-    def export_vision(self):
-        """ Returns a 2D list of pixel values that must be interpretted and
-        displayed in Python 3 with Pyglet. """
         return self.vision
