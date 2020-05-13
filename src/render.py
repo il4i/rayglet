@@ -30,8 +30,8 @@ def getView():
     # - Ian
     output = caster.export_vision()
     for col in output:
-        drawColumn()
-    print("needs to be implemented")
+        drawColumn(col.sky, col.wall, col.floor)
+    #print("needs to be implemented")
 
 #Draws first screen
 @window.event
